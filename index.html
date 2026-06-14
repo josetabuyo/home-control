@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Smart Home</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#17212b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Casa">
+<style>
+:root {
+  --bg:       #17212b;
+  --surface:  #232e3c;
+  --surface2: #2b3646;
+  --border:   #374455;
+  --teal:     #29b6f6;
+  --green:    #26a869;
+  --red:      #e53935;
+  --text:     #e8eef4;
+  --muted:    #7d8b99;
+  --r:        18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  padding: 16px 14px 40px;
+  overscroll-behavior: none;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 2px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  width: 36px; height: 36px;
+  background: var(--teal);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+
+h1 { font-size: 1.25rem; font-weight: 700; }
+
+#settings-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+#settings-btn:active { background: var(--surface2); }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 16px;
+  margin-bottom: 12px;
+  transition: border-color .2s;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.device-icon {
+  width: 44px; height: 44px;
+  background: var(--surface2);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.device-name { font-size: 1rem; font-weight: 600; }
+.device-sub  { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+/* ON / OFF buttons */
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn {
+  padding: 15px 10px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: opacity .1s, transform .1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  user-select: none;
+}
+.btn:active { opacity: .75; transform: scale(.97); }
+
+.btn-on  { background: var(--green); color: #fff; }
+.btn-off { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+/* Wide single-column buttons */
+.btn-wide {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  transition: opacity .1s, transform .1s;
+  user-select: none;
+}
+.btn-wide:active { opacity: .75; transform: scale(.98); }
+
+.btn-photo  { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-status { background: var(--teal); color: #0a1929; font-weight: 700; }
+
+.btn-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1e2d3f;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 11px 22px;
+  border-radius: 40px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+#toast.error { border-color: var(--red); color: #ff8a80; }
+
+/* Settings overlay */
+#settings-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 200;
+  align-items: flex-end;
+}
+#settings-overlay.open { display: flex; }
+
+#settings-panel {
+  background: var(--surface);
+  border-radius: var(--r) var(--r) 0 0;
+  padding: 20px 16px 40px;
+  width: 100%;
+}
+#settings-panel h2 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+.field input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+.field input:focus { border-color: var(--teal); }
+
+.settings-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.btn-save   { background: var(--teal); color: #0a1929; font-weight: 700; }
+.btn-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+/* Mode badge */
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #29b6f622;
+  color: var(--teal);
+  border: 1px solid #29b6f640;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <div class="header-icon">🏠</div>
+    <div>
+      <h1 id="app-title">Smart Home</h1>
+      <div class="mode-badge" id="mode-badge">cargando…</div>
+    </div>
+  </div>
+  <button id="settings-btn" onclick="openSettings()" title="Configuración">⚙</button>
+</header>
+
+<!-- Enchufe -->
+<div class="card">
+  <div class="card-header">
+    <div class="device-icon">⚡</div>
+    <div>
+      <div class="device-name" id="plug-name">Enchufe</div>
+      <div class="device-sub">Control de enchufe</div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-on"  onclick="send('enchufe on')">✓ ON</button>
+    <button class="btn btn-off" onclick="send('enchufe off')">✕ OFF</button>
+  </div>
+</div>
+
+<!-- Luz -->
+<div class="card">
+  <div class="card-header">
+    <div class="device-icon">💡</div>
+    <div>
+      <div class="device-name" id="light-name">Luz</div>
+      <div class="device-sub">Control de luz</div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-on"  onclick="send('luz on')">✓ ON</button>
+    <button class="btn btn-off" onclick="send('luz off')">✕ OFF</button>
+  </div>
+</div>
+
+<!-- Foto / Status -->
+<div class="btn-row-2">
+  <button class="btn-wide btn-photo"  onclick="send('foto')">📷 Foto</button>
+  <button class="btn-wide btn-status" onclick="send('status')">📊 Estado</button>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Settings overlay -->
+<div id="settings-overlay" onclick="maybeCloseSettings(event)">
+  <div id="settings-panel">
+    <h2>⚙ Configuración</h2>
+    <div class="field">
+      <label>Nombre del enchufe</label>
+      <input id="cfg-plug" placeholder="Luces Patio" />
+    </div>
+    <div class="field">
+      <label>Nombre de la luz</label>
+      <input id="cfg-light" placeholder="Luz Pared" />
+    </div>
+    <div class="field" id="api-field">
+      <label>URL del servidor (modo directo)</label>
+      <input id="cfg-api" placeholder="http://100.119.168.105:9000" />
+    </div>
+    <div class="settings-actions">
+      <button class="btn-wide btn-save"   onclick="saveSettings()">Guardar</button>
+      <button class="btn-wide btn-cancel" onclick="closeSettings()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Telegram Mini App init ────────────────────────────────────────────────────
+const tg = window.Telegram?.WebApp;
+const isMiniApp = !!(tg?.initData);
+
+if (isMiniApp) {
+  tg.ready();
+  tg.expand();
+  document.getElementById('mode-badge').textContent = 'Telegram';
+  // Inherit theme colors from Telegram
+  const tp = tg.themeParams || {};
+  if (tp.bg_color) document.documentElement.style.setProperty('--bg', tp.bg_color);
+  if (tp.secondary_bg_color) {
+    document.documentElement.style.setProperty('--surface', tp.secondary_bg_color);
+  }
+  if (tp.text_color) document.documentElement.style.setProperty('--text', tp.text_color);
+  if (tp.hint_color) document.documentElement.style.setProperty('--muted', tp.hint_color);
+  if (tp.button_color) document.documentElement.style.setProperty('--teal', tp.button_color);
+  // Hide API field (not needed in Mini App mode)
+  document.getElementById('api-field').style.display = 'none';
+} else {
+  document.getElementById('mode-badge').textContent = 'Web';
+}
+
+// ── Config from localStorage (with URL param overrides) ───────────────────────
+const params = new URLSearchParams(location.search);
+
+function cfg(key, fallback) {
+  return params.get(key) || localStorage.getItem('teli_' + key) || fallback;
+}
+
+const PLUG_NAME  = cfg('plug',  'Enchufe');
+const LIGHT_NAME = cfg('light', 'Luz');
+const API_BASE   = cfg('api',   '');
+
+document.getElementById('plug-name').textContent  = PLUG_NAME;
+document.getElementById('light-name').textContent = LIGHT_NAME;
+
+// Pre-fill settings
+document.getElementById('cfg-plug').value  = PLUG_NAME;
+document.getElementById('cfg-light').value = LIGHT_NAME;
+document.getElementById('cfg-api').value   = API_BASE;
+
+// ── Core send function ────────────────────────────────────────────────────────
+async function send(cmd) {
+  if (isMiniApp) {
+    // Mini App mode: send command to bot via Telegram SDK, app closes after
+    toast('Enviando…');
+    setTimeout(() => tg.sendData(cmd), 300);
+  } else if (API_BASE) {
+    // Standalone mode: direct REST call to Smart Home server
+    await callDirect(cmd);
+  } else {
+    // Fallback: open Telegram app with pre-filled message
+    const botUser = cfg('bot', '');
+    if (botUser) {
+      location.href = `tg://resolve?domain=${botUser}&text=${encodeURIComponent(cmd)}`;
+    } else {
+      toast('Configurá la URL del servidor o el bot en ⚙', true);
+    }
+  }
+}
+
+// ── Direct API calls (standalone mode via Tailscale) ─────────────────────────
+const API_MAP = {
+  'enchufe on':  ['POST', '/api/plug/on'],
+  'enchufe off': ['POST', '/api/plug/off'],
+  'luz on':      ['POST', '/api/light/on'],
+  'luz off':     ['POST', '/api/light/off'],
+  'foto':        ['GET',  '/api/camera/snapshot'],
+  'status':      ['GET',  '/api/plug/status'],
+};
+
+async function callDirect(cmd) {
+  const [method, path] = API_MAP[cmd] || ['GET', '/api/plug/status'];
+  try {
+    toast('…');
+    const r = await fetch(API_BASE + path, { method, signal: AbortSignal.timeout(6000) });
+    if (cmd === 'foto' && r.ok) {
+      const blob = await r.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = Object.assign(document.createElement('a'), { href: url, download: 'foto.jpg' });
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Foto guardada');
+      return;
+    }
+    const data = await r.json();
+    if (!r.ok) { toast(data.detail || 'Error', true); return; }
+    const msg = data.on !== undefined ? (data.on ? 'ON ✓' : 'OFF ✓') : JSON.stringify(data);
+    toast(msg);
+  } catch (e) {
+    toast('Sin conexión con el servidor', true);
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let _toastTimer;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show' + (isError ? ' error' : '');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = ''; }, 2200);
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function openSettings()  { document.getElementById('settings-overlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
+function maybeCloseSettings(e) {
+  if (e.target === document.getElementById('settings-overlay')) closeSettings();
+}
+function saveSettings() {
+  const plug  = document.getElementById('cfg-plug').value.trim();
+  const light = document.getElementById('cfg-light').value.trim();
+  const api   = document.getElementById('cfg-api').value.trim();
+  if (plug)  { localStorage.setItem('teli_plug',  plug);  document.getElementById('plug-name').textContent  = plug; }
+  if (light) { localStorage.setItem('teli_light', light); document.getElementById('light-name').textContent = light; }
+  if (api)   localStorage.setItem('teli_api', api);
+  closeSettings();
+  toast('Guardado ✓');
+}
+
+// ── Update mode badge (after DOM ready) ───────────────────────────────────────
+if (!isMiniApp && API_BASE) {
+  document.getElementById('mode-badge').textContent = 'Directo';
+}
+</script>
+</body>
+</html>
