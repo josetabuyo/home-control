@@ -1,0 +1,10 @@
+fastapi==0.115.0
+teli @ file:///Users/josetabuyo/Development/teli
+uvicorn[standard]==0.30.6
+tinytuya==1.15.1
+python-dotenv>=1.0.1
+pydantic==2.8.2
+httpx==0.27.2
+langchain-groq==1.1.2
+langchain-core==1.4.0
+groq==0.37.1
