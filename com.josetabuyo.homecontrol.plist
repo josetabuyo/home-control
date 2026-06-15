@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.josetabuyo.smarthome</string>
+	<string>com.josetabuyo.homecontrol</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/bin/bash</string>
@@ -21,9 +21,9 @@
 	<key>KeepAlive</key>
 	<true/>
 	<key>StandardOutPath</key>
-	<string>/Users/josetabuyo/Library/Logs/smarthome.log</string>
+	<string>/Users/josetabuyo/Library/Logs/homecontrol.log</string>
 	<key>StandardErrorPath</key>
-	<string>/Users/josetabuyo/Library/Logs/smarthome.log</string>
+	<string>/Users/josetabuyo/Library/Logs/homecontrol.log</string>
 	<key>WorkingDirectory</key>
 	<string>/Users/josetabuyo/Development/Home/home-control</string>
 </dict>
