@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Mi Casa</title>
+<title>Home Control</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mi Casa">
+<meta name="apple-mobile-web-app-title" content="Home Control">
 <style>
 :root {
   --bg:      #0d1117;
@@ -60,13 +60,56 @@ h1 { font-size: 1.2rem; font-weight: 700; }
 .conn-dot.err { background: var(--red); }
 
 #cfg-btn {
-  width: 36px; height: 36px;
+  width: 44px; height: 44px;
   border-radius: 50%; border: none;
   background: var(--surface); color: var(--muted);
   font-size: 1rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
 #cfg-btn:active { background: var(--surf2); }
+
+/* ── Mic section ── */
+.mic-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.mic-button {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--teal);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  transition: border-color .15s, background .15s;
+}
+.mic-button:active { background: var(--surf2); }
+.mic-button.recording {
+  background: #f8514922;
+  border-color: var(--red);
+  animation: pulse-mic .6s ease-in-out infinite;
+}
+.mic-icon {
+  width: 36px; height: 36px;
+  color: var(--teal);
+}
+.mic-button.recording .mic-icon { color: var(--red); }
+@keyframes pulse-mic {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: .8; }
+}
+#mic-status { font-size: .73rem; color: var(--muted); height: 16px; }
+#voice-feedback {
+  font-size: .8rem; color: var(--teal);
+  display: none; text-align: center;
+  padding: 8px 12px;
+  background: #00d4aa18;
+  border-radius: 8px;
+  width: 100%; max-width: 300px;
+}
 
 /* ── Cards ── */
 .card {
@@ -93,7 +136,34 @@ h1 { font-size: 1.2rem; font-weight: 700; }
   display: flex; align-items: center; justify-content: center;
   font-size: 1.3rem;
 }
+
+/* Inline editable name */
+.name-wrap {
+  display: flex; align-items: center; gap: 6px;
+}
 .dev-name { font-size: .95rem; font-weight: 600; }
+.edit-btn {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  font-size: .85rem; color: var(--muted);
+  border-radius: 8px;
+  margin: -8px -10px -8px -10px;
+  opacity: 0.5;
+  transition: opacity .15s;
+}
+.edit-btn:active { opacity: 1; background: var(--surf2); }
+.name-input {
+  font-size: .95rem; font-weight: 600;
+  background: var(--surf2);
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 3px 8px;
+  outline: none;
+  width: 130px;
+  max-width: 50vw;
+}
 .dev-sub  { font-size: .72rem; color: var(--muted); margin-top: 2px; }
 
 /* Toggle */
@@ -143,8 +213,8 @@ input[type=range]::-webkit-slider-thumb {
 .stat-l { font-size: .68rem; color: var(--muted); margin-bottom: 3px; }
 .stat-v { font-size: 1rem; font-weight: 700; }
 
-/* Buttons */
-.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+/* Bottom button row */
+.btn-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
 .btn {
   padding: 13px; border: none; border-radius: 11px;
   font-size: .85rem; font-weight: 700; cursor: pointer;
@@ -154,6 +224,79 @@ input[type=range]::-webkit-slider-thumb {
 .btn:active { opacity: .7; transform: scale(.97); }
 .btn-primary { background: var(--teal); color: #0a1929; }
 .btn-ghost   { background: var(--surf2); color: var(--muted); border: 1px solid var(--border); }
+
+/* ── Color picker section ── */
+.color-section {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.color-modes { display: flex; gap: 8px; }
+.mode-btn {
+  flex: 1;
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surf2);
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.mode-btn.active {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: #00d4aa18;
+}
+.color-input-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+input[type=color] {
+  width: 44px; height: 44px;
+  border: none; border-radius: 10px;
+  cursor: pointer; padding: 2px;
+  background: var(--surf2);
+  flex-shrink: 0;
+}
+.color-presets { display: flex; gap: 8px; flex-wrap: wrap; }
+.preset {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .15s, transform .1s;
+}
+.preset:active { transform: scale(1.15); }
+.preset.selected { border-color: #fff; }
+
+/* Temp track */
+.temp-track {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #ff8c00, #fff5e6, #cce8ff);
+  margin: 4px 0;
+}
+.temp-track input[type=range] {
+  position: absolute; inset: -8px 0;
+  height: auto;
+  background: transparent;
+  cursor: pointer;
+}
+.temp-track input[type=range]::-webkit-slider-thumb {
+  background: #fff;
+  border: 2px solid var(--teal);
+}
+.temp-label {
+  display: flex; justify-content: space-between;
+  font-size: .72rem; color: var(--muted);
+  margin-bottom: 6px;
+}
+.temp-val {
+  text-align: center; font-size: .75rem; color: var(--muted); margin-top: 8px;
+}
 
 /* Toast */
 #toast {
@@ -198,12 +341,26 @@ input[type=range]::-webkit-slider-thumb {
   <div class="hdr-left">
     <div class="hdr-icon">🏠</div>
     <div>
-      <h1>Mi Casa</h1>
+      <h1>Home Control</h1>
       <div class="conn-dot" id="dot"></div>
     </div>
   </div>
   <button id="cfg-btn" onclick="openCfg()">⚙</button>
 </header>
+
+<!-- Mic -->
+<div class="mic-section">
+  <button id="mic-btn" class="mic-button" onclick="toggleMic()" title="Presioná para hablar">
+    <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v12a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+      <line x1="12" y1="19" x2="12" y2="23"></line>
+      <line x1="8" y1="23" x2="16" y2="23"></line>
+    </svg>
+  </button>
+  <span id="mic-status"></span>
+  <div id="voice-feedback"></div>
+</div>
 
 <!-- Enchufe -->
 <div class="card" id="card-plug">
@@ -211,7 +368,10 @@ input[type=range]::-webkit-slider-thumb {
     <div class="card-info">
       <div class="dev-icon">⚡</div>
       <div>
-        <div class="dev-name" id="plug-name">Enchufe</div>
+        <div class="name-wrap">
+          <span class="dev-name" id="plug-name">Enchufe</span>
+          <button class="edit-btn" onclick="editName('plug', 'plug', 'plug-name')" title="Editar nombre">✏️</button>
+        </div>
         <div class="dev-sub" id="plug-sub">—</div>
       </div>
     </div>
@@ -233,7 +393,10 @@ input[type=range]::-webkit-slider-thumb {
     <div class="card-info">
       <div class="dev-icon">💡</div>
       <div>
-        <div class="dev-name" id="light-name">Luz</div>
+        <div class="name-wrap">
+          <span class="dev-name" id="light-name">Luz</span>
+          <button class="edit-btn" onclick="editName('light', 'light', 'light-name')" title="Editar nombre">✏️</button>
+        </div>
         <div class="dev-sub" id="light-sub">—</div>
       </div>
     </div>
@@ -243,6 +406,8 @@ input[type=range]::-webkit-slider-thumb {
       <div class="tog-thumb"></div>
     </label>
   </div>
+
+  <!-- Brillo -->
   <div class="slider-row" id="bri-row" style="display:none">
     <div class="slider-label">
       <span>Brillo</span><span id="bri-val">—</span>
@@ -251,17 +416,55 @@ input[type=range]::-webkit-slider-thumb {
            oninput="document.getElementById('bri-val').textContent=this.value+'%'"
            onchange="setBrillo(this.value)">
   </div>
+
+  <!-- Color section -->
+  <div class="color-section" id="color-section" style="display:none">
+    <div class="color-modes">
+      <button class="mode-btn active" id="mode-color" onclick="setColorMode('color')">Color</button>
+      <button class="mode-btn" id="mode-white" onclick="setColorMode('white')">Blanca</button>
+    </div>
+
+    <!-- Panel Color -->
+    <div id="panel-color">
+      <div class="color-input-row">
+        <input type="color" id="color-picker" value="#00d4aa"
+               onchange="applyColor(this.value)">
+        <div class="color-presets">
+          <div class="preset" style="background:#ff4040" title="Rojo"    onclick="applyColor('#ff4040', this)"></div>
+          <div class="preset" style="background:#ff8c00" title="Naranja" onclick="applyColor('#ff8c00', this)"></div>
+          <div class="preset" style="background:#ffe135" title="Amarillo"onclick="applyColor('#ffe135', this)"></div>
+          <div class="preset" style="background:#00cc44" title="Verde"   onclick="applyColor('#00cc44', this)"></div>
+          <div class="preset" style="background:#00d4aa" title="Teal"    onclick="applyColor('#00d4aa', this)"></div>
+          <div class="preset" style="background:#4499ff" title="Azul"    onclick="applyColor('#4499ff', this)"></div>
+          <div class="preset" style="background:#cc44ff" title="Violeta" onclick="applyColor('#cc44ff', this)"></div>
+          <div class="preset" style="background:#ff44aa" title="Rosa"    onclick="applyColor('#ff44aa', this)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Blanca -->
+    <div id="panel-white" style="display:none">
+      <div class="temp-label">
+        <span>🕯️ Cálida</span><span>❄️ Fría</span>
+      </div>
+      <div class="temp-track">
+        <input type="range" id="temp-slider" min="2500" max="6500" value="4000"
+               oninput="document.getElementById('temp-val').textContent=this.value+' K'"
+               onchange="setTemperatura(this.value)">
+      </div>
+      <div class="temp-val" id="temp-val">4000 K</div>
+    </div>
+  </div>
 </div>
 
-<!-- Botones generales -->
+<!-- Actualizar -->
 <div class="btn-row">
   <button class="btn btn-primary" onclick="sendStatus()">📊 Actualizar</button>
-  <button class="btn btn-ghost"   onclick="openCfg()">⚙ Config</button>
 </div>
 
 <div id="toast"></div>
 
-<!-- Config overlay -->
+<!-- Config overlay (solo token y chat_id) -->
 <div id="cfg-overlay" onclick="maybeCfgClose(event)">
   <div id="cfg-panel">
     <h2>⚙ Configuración</h2>
@@ -275,14 +478,6 @@ input[type=range]::-webkit-slider-thumb {
       <input id="cfg-chatid" placeholder="123456789">
       <div class="cfg-hint">El bot te lo manda cuando escribís /start en Telegram.</div>
     </div>
-    <div class="field">
-      <label>Nombre del enchufe</label>
-      <input id="cfg-plug" placeholder="Luces Patio">
-    </div>
-    <div class="field">
-      <label>Nombre de la luz</label>
-      <input id="cfg-light" placeholder="Luz Pared">
-    </div>
     <div class="cfg-actions">
       <button class="btn btn-primary" onclick="saveCfg()">Guardar</button>
       <button class="btn btn-ghost"   onclick="closeCfg()">Cancelar</button>
@@ -292,7 +487,7 @@ input[type=range]::-webkit-slider-thumb {
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────────
-const S = key => localStorage.getItem('sh_' + key) || '';
+const S  = key => localStorage.getItem('sh_' + key) || '';
 const SS = (key, val) => localStorage.setItem('sh_' + key, val);
 
 let TOKEN   = S('token');
@@ -301,7 +496,6 @@ let CHAT_ID = S('chatid');
 document.getElementById('plug-name').textContent  = S('plug')  || 'Enchufe';
 document.getElementById('light-name').textContent = S('light') || 'Luz';
 
-// Abrir config si faltan datos
 if (!TOKEN || !CHAT_ID) setTimeout(openCfg, 300);
 
 // ── Telegram API ──────────────────────────────────────────────────────────────
@@ -318,7 +512,7 @@ async function tgSend(text) {
   return r.json();
 }
 
-// Polling: lee las respuestas que la Mac mandó al bot (usuario → bot)
+// ── Polling ───────────────────────────────────────────────────────────────────
 let _offset = 0;
 let _polling = false;
 
@@ -331,9 +525,7 @@ async function pollOnce() {
     _offset = upd.update_id + 1;
     const msg = upd.message;
     if (!msg) continue;
-    // Solo nos interesan mensajes que vienen del chat del bot → son las respuestas de la Mac
     if (String(msg.chat.id) !== String(CHAT_ID)) continue;
-    // Solo los que SÍ tienen texto (respuestas del handler)
     const text = msg.text;
     if (!text) continue;
     tryParseResponse(text);
@@ -347,19 +539,29 @@ function tryParseResponse(text) {
     if (d.type === 'status')       applyStatus(d);
     if (d.type === 'plug_status')  applyPlug(d);
     if (d.type === 'light_status') applyLight(d);
+    if (d.type === 'voice') {
+      const parts = [];
+      if (d.transcription) parts.push('🗣 ' + d.transcription);
+      if (d.msg) parts.push(d.msg);
+      if (parts.length) {
+        const fb = document.getElementById('voice-feedback');
+        fb.textContent = parts.join(' · ');
+        fb.style.display = 'block';
+        setTimeout(() => { fb.style.display = 'none'; }, 4000);
+      }
+      sendStatus();
+      return;
+    }
     if (d.msg) toast(d.msg);
     setDot('ok');
   } catch {
-    // respuesta no-JSON: mostrar como toast
     toast(text.slice(0, 80));
   }
 }
 
-// ── Polling loop (cada 2s mientras la página está activa) ─────────────────────
 async function startPolling() {
   if (_polling) return;
   _polling = true;
-  // Avanzar offset al final para no leer mensajes viejos
   await skipOldUpdates();
   while (_polling) {
     try { await pollOnce(); } catch(e) { setDot('err'); }
@@ -393,6 +595,8 @@ function applyPlug(d) {
     document.getElementById('plug-stats').style.display = 'flex';
     document.getElementById('plug-power').textContent   = d.power_w + ' W';
     document.getElementById('plug-voltage').textContent = (d.voltage_v ?? '—') + (d.voltage_v != null ? ' V' : '');
+  } else {
+    document.getElementById('plug-stats').style.display = 'none';
   }
 }
 
@@ -401,14 +605,16 @@ function applyLight(d) {
   document.getElementById('tog-light').checked = on;
   document.getElementById('card-light').className = 'card ' + (on ? 'active' : 'off');
   document.getElementById('light-sub').textContent = on ? `Encendida · ${d.brightness ?? '?'}%` : 'Apagada';
-  if (on && d.brightness != null) {
-    document.getElementById('bri-row').style.display = 'block';
+  const showControls = on && d.brightness != null;
+  document.getElementById('bri-row').style.display       = showControls ? 'block' : 'none';
+  document.getElementById('color-section').style.display = showControls ? 'flex'  : 'none';
+  if (showControls) {
     document.getElementById('bri-slider').value = d.brightness;
     document.getElementById('bri-val').textContent = d.brightness + '%';
   }
 }
 
-// ── Controles ─────────────────────────────────────────────────────────────────
+// ── Controles básicos ─────────────────────────────────────────────────────────
 async function togglePlug(on) {
   try {
     toast('…');
@@ -440,11 +646,149 @@ async function sendStatus() {
   } catch(e) { toast('Sin conexión', true); }
 }
 
-// Espera hasta 6s para que la respuesta de la Mac llegue vía polling
 async function waitResponse() {
   for (let i = 0; i < 12; i++) {
     await sleep(500);
     await pollOnce();
+  }
+}
+
+// ── Color picker ──────────────────────────────────────────────────────────────
+let _colorMode = 'color';
+
+function setColorMode(mode) {
+  _colorMode = mode;
+  document.getElementById('mode-color').className = 'mode-btn' + (mode === 'color' ? ' active' : '');
+  document.getElementById('mode-white').className  = 'mode-btn' + (mode === 'white' ? ' active' : '');
+  document.getElementById('panel-color').style.display = mode === 'color' ? 'block' : 'none';
+  document.getElementById('panel-white').style.display = mode === 'white' ? 'block' : 'none';
+}
+
+async function applyColor(hex, presetEl) {
+  document.getElementById('color-picker').value = hex;
+  document.querySelectorAll('.preset').forEach(p => p.classList.remove('selected'));
+  if (presetEl) presetEl.classList.add('selected');
+  try {
+    toast('Color…');
+    await tgSend('color ' + hex);
+    await waitResponse();
+  } catch(e) { toast('Sin conexión', true); }
+}
+
+async function setTemperatura(val) {
+  try {
+    toast('Temperatura…');
+    await tgSend('temperatura ' + val);
+    await waitResponse();
+  } catch(e) { toast('Sin conexión', true); }
+}
+
+// ── Edición inline de nombres ─────────────────────────────────────────────────
+function editName(cardId, storageKey, spanId) {
+  const span = document.getElementById(spanId);
+  if (span.dataset.editing) return;
+  span.dataset.editing = '1';
+
+  const current = span.textContent;
+  const input = document.createElement('input');
+  input.className = 'name-input';
+  input.value = current;
+
+  function confirm() {
+    const val = input.value.trim();
+    if (val) {
+      SS(storageKey, val);
+      span.textContent = val;
+    } else {
+      span.textContent = current;
+    }
+    span.style.display = '';
+    delete span.dataset.editing;
+    input.remove();
+  }
+  function cancel() {
+    span.textContent = current;
+    span.style.display = '';
+    delete span.dataset.editing;
+    input.remove();
+  }
+
+  span.style.display = 'none';
+  span.parentNode.insertBefore(input, span);
+  input.focus();
+  input.select();
+
+  input.addEventListener('blur', confirm);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.removeEventListener('blur', confirm); cancel(); }
+  });
+}
+
+// ── Micrófono via Telegram sendVoice ─────────────────────────────────────────
+let _mediaRecorder = null;
+let _audioChunks   = [];
+let _isRecording   = false;
+
+function toggleMic() {
+  if (_isRecording) stopRecording();
+  else startRecording();
+}
+
+async function startRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast('Micrófono no disponible', true); return;
+  }
+  if (!TOKEN || !CHAT_ID) { openCfg(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    _audioChunks = [];
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+    _mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+    _mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) _audioChunks.push(e.data);
+    };
+
+    _mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(_audioChunks, { type: mimeType });
+      await sendVoiceToTelegram(blob);
+    };
+
+    _mediaRecorder.start();
+    _isRecording = true;
+    document.getElementById('mic-btn').classList.add('recording');
+    document.getElementById('mic-status').textContent = 'Grabando… (tocá para parar)';
+  } catch(e) {
+    const msg = e.name === 'NotAllowedError' ? 'Permiso de micrófono denegado' : 'Error de micrófono';
+    toast(msg, true);
+  }
+}
+
+function stopRecording() {
+  if (_mediaRecorder && _isRecording) {
+    _mediaRecorder.stop();
+    _isRecording = false;
+    document.getElementById('mic-btn').classList.remove('recording');
+    document.getElementById('mic-status').textContent = 'Procesando…';
+  }
+}
+
+async function sendVoiceToTelegram(blob) {
+  try {
+    const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
+    const fd = new FormData();
+    fd.append('chat_id', CHAT_ID);
+    fd.append('document', blob, `voz.${ext}`);
+    const r = await fetch(TG('sendDocument'), { method: 'POST', body: fd });
+    if (!r.ok) throw new Error(`sendVoice ${r.status}`);
+    document.getElementById('mic-status').textContent = 'Enviado ✓';
+    await waitResponse();
+    document.getElementById('mic-status').textContent = '';
+  } catch(e) {
+    toast('Error enviando audio', true);
+    document.getElementById('mic-status').textContent = '';
   }
 }
 
@@ -466,8 +810,6 @@ function setDot(state) {
 function openCfg() {
   document.getElementById('cfg-token').value  = S('token');
   document.getElementById('cfg-chatid').value = S('chatid');
-  document.getElementById('cfg-plug').value   = S('plug')  || '';
-  document.getElementById('cfg-light').value  = S('light') || '';
   document.getElementById('cfg-overlay').classList.add('open');
 }
 function closeCfg() { document.getElementById('cfg-overlay').classList.remove('open'); }
@@ -478,10 +820,6 @@ function saveCfg() {
   CHAT_ID = document.getElementById('cfg-chatid').value.trim();
   SS('token',  TOKEN);
   SS('chatid', CHAT_ID);
-  const plug  = document.getElementById('cfg-plug').value.trim();
-  const light = document.getElementById('cfg-light').value.trim();
-  if (plug)  { SS('plug',  plug);  document.getElementById('plug-name').textContent  = plug; }
-  if (light) { SS('light', light); document.getElementById('light-name').textContent = light; }
   closeCfg();
   toast('Guardado ✓');
   startPolling();
